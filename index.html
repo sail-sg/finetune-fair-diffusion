@@ -333,20 +333,10 @@
   </h2>
   <button id="toggleButton_result1" onclick="toggleVisibility_result1()" class="toggle-button">Hide Content</button>
   <div id="toggleContent_result1" style="display: block;">
-  <center>
-    <table align=center width=850px>
-      <center>
-        <tr>
-          <td>
-            <p style="text-align:justify; text-justify:inter-ideograph;"> 
-              Here we debias stable-diffusion v1-5 for the intersection of gender and race, by finetuning LoRA with rank 50 applied on the text encoder. We consider binary gender and four race classes: WMELH, Asian, Black, and Indian. WMELH encompasses White, Middle Eastern, and Latino Hispanic. The prompt is contructed using the template "a photo of the face of a {occupation}, a person". We use 1000 occupations for debiasing finetuning.
+    Here we debias stable-diffusion v1-5 for the intersection of gender and race, by finetuning LoRA with rank 50 applied on the text encoder. We consider binary gender and four race classes: WMELH, Asian, Black, and Indian. WMELH encompasses White, Middle Eastern, and Latino Hispanic. The prompt is contructed using the template "a photo of the face of a {occupation}, a person". We use 1000 occupations for debiasing finetuning.
 
-              <br> For every prompt P, we compute the following metric: \(\textrm{bias}(\texttt{P}) = \frac{1}{K(K-1)/2}\sum_{i,j\in[K]:i&lt j} |\textrm{freq}(i)-\textrm{freq}(j)| \),
-              where \(\textrm{freq}(i)\) is group \(i\)'s frequency in the generated images. The number of groups \(K\) is 2/4/8 for gender/race/their intersection. The classification of an image into a specific group is based on the face that covers the largest area. This bias metric considers a perfectly balanced target distribution. It measures the disparity of different groups' representations, averaged across all contrasting groups.
-          </td>
-        </tr>
-      </center>
-    </table>
+    <br> For every prompt P, we compute the following metric: \(\textrm{bias}(\texttt{P}) = \frac{1}{K(K-1)/2}\sum_{i,j\in[K]:i&lt j} |\textrm{freq}(i)-\textrm{freq}(j)| \),
+    where \(\textrm{freq}(i)\) is group \(i\)'s frequency in the generated images. The number of groups \(K\) is 2/4/8 for gender/race/their intersection. The classification of an image into a specific group is based on the face that covers the largest area. This bias metric considers a perfectly balanced target distribution. It measures the disparity of different groups' representations, averaged across all contrasting groups.
     <hr>
     <table align="center" width="850px", style="margin-top: 20px;">
       <tr>
@@ -500,7 +490,6 @@
         </tr>
       </center>
     </table>
-  </center>
   </div>
 </div>
 
