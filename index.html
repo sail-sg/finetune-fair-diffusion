@@ -229,7 +229,7 @@
       <div class="column is-four-fifths">
         <h2 class="title is-3" >Abstract</h2>
         <div class="content has-text-justified">
-          The rapid adoption of text-to-image diffusion models in society underscores an urgent need to address their biases. Without interventions, these biases could propagate a skewed worldview and restrict opportunities for minority groups. In this work, <b><u>we frame fairness as a distributional alignment problem</b></u>. Our solution consists of two main technical contributions: (1) a <b><u>distributional alignment loss</b></u> that steers specific characteristics of the generated images towards a user-defined target distribution, and (2) <b><u>adjusted direct finetuning of diffusion model's sampling process (adjusted DFT)</b></u>, which leverages an adjusted gradient to more effectively optimize losses defined on the generated images. Empirically, our method markedly reduces gender, racial, and their intersectional biases for occupational prompts. Gender bias is significantly reduced even when finetuning just five soft tokens. Crucially, our method supports diverse perspectives of fairness beyond absolute equality, which is demonstrated by controlling age to a 75% young and 25% old distribution while simultaneously debiasing gender and race. Finally, our method is scalable: it can debias multiple concepts at once by simply including these prompts in the finetuning data.
+          The rapid adoption of text-to-image diffusion models in society underscores an urgent need to address their biases. Without interventions, these biases could propagate a skewed worldview and restrict opportunities for minority groups. In this work, <b><u>we frame fairness as a distributional alignment problem</b></u>. Our solution consists of two main technical contributions: (1) a <b><u>distributional alignment loss</b></u> that steers specific characteristics of the generated images towards a user-defined target distribution, and (2) <b><u>adjusted direct finetuning of diffusion model's sampling process (adjusted DFT)</b></u>, which leverages an adjusted gradient to directly optimize losses defined on the generated images. Empirically, our method markedly reduces gender, racial, and their intersectional biases for occupational prompts. Gender bias is significantly reduced even when finetuning just five soft tokens. Crucially, our method supports diverse perspectives of fairness beyond absolute equality, which is demonstrated by controlling age to a 75% young and 25% old distribution while simultaneously debiasing gender and race. Finally, our method is scalable: it can debias multiple concepts at once by simply including these prompts in the finetuning data.
         </div>
       </div>
     </div>
@@ -255,19 +255,21 @@
   </h2>
   <button id="toggleButton_DAL" onclick="toggleVisibility_DAL()" class="toggle-button">Hide Content</button>
   <div id="toggleContent_DAL" style="display: block;">
-    Consider we want to control a categorical attribute of the generated images that has \(K\) classes and align it towards a target distribution \(\mathcal{D}\). Each class is represented as a one-hot vector of length \(K\) and \(\mathcal{D}\) is a discrete distribution over these vectors (or simply points). We first generate a batch of images \(\mathcal{I}=\{\boldsymbol{x}^{(i)}\}_{i\in[N]}\) using the finetuned diffusion model and some prompt P. For every generated image \(\boldsymbol{x}^{(i)}\), we use a pre-trained classifier \(h\) to produce a class probability vector \(\boldsymbol{p}_i=[p_{i,1},\cdots,p_{i,K}]=h(\boldsymbol{x}^{(i)})\), with \(p_{i,k}\) denoting the estimated probability that \(\boldsymbol{x}^{(i)}\) is from class \(k\). Assume we have another set of vectors \(\{\boldsymbol{u}_i\}_{i\in[N]}\) that represents the target distribution and where every \(\boldsymbol{u}_i\) is a one-hot vector representing a class, we can compute the optimal transport (OT) from \(\{\boldsymbol{p}_i\}_{i\in[N]}\) to \(\{\boldsymbol{u}_i\}_{i\in[N]}\):
+    Consider we want to control a categorical attribute of the generated images that has \(K\) classes and align it towards a target distribution \(\mathcal{D}\). Each class is represented as a one-hot vector of length \(K\) and \(\mathcal{D}\) is a discrete distribution over these vectors (or simply points). We first generate a batch of images \(\mathcal{I}=\{\boldsymbol{x}^{(i)}\}_{i\in[N]}\) using the finetuned diffusion model and some prompt P. For every generated image \(\boldsymbol{x}^{(i)}\), we use a pre-trained classifier \(h\) to produce a class probability vector \(\boldsymbol{p}^{(i)}=[p_{1}^{(i)},\cdots,p_{K}^{(i)}]=h(\boldsymbol{x}^{(i)})\), with \(p_{k}^{(i)}\) denoting the estimated probability that \(\boldsymbol{x}^{(i)}\) is from class \(k\). Assume we have another set of vectors \(\{\boldsymbol{u}^{(i)}\}_{i\in[N]}\) that represents the target distribution and where every \(\boldsymbol{u}^{(i)}\) is a one-hot vector representing a class, we can compute the optimal transport (OT) from \(\{\boldsymbol{p}^{(i)}\}_{i\in[N]}\) to \(\{\boldsymbol{u}^{(i)}\}_{i\in[N]}\):
 
-    $$ \sigma^* = {\arg\min}_{\sigma\in \mathcal{S}_{N}}\sum_{i=1}^{N}|\boldsymbol{p}_i-\boldsymbol{u}_{\sigma_{i}}|_{2}\textrm{,}$$
+    $$ \sigma^* = {\arg\min}_{\sigma\in \mathcal{S}_{N}}\sum_{i=1}^{N}|\boldsymbol{p}^{(i)}-\boldsymbol{u}^{(\sigma_{i})}|_{2}\textrm{,}$$
     
-    where \(\mathcal{S}_{N}\) denotes all permutations of \([N]\). Intuitively, \(\sigma^*\) finds, in the class probability space, the most efficient modification of the current images to match the target distribution.
+    where \(\mathcal{S}_{N}\) denotes all permutations of \([N]\), \(\sigma=[\sigma_1,\cdots,\sigma_N]\), and \(\sigma_i\in[N]\). Intuitively, \(\sigma^*\) finds, in the class probability space, the most efficient modification of the current images to match the target distribution.
     
-    We construct \(\{\boldsymbol{u}_i\}_{i\in[N]}\) to be iid samples from the target distribution and compute the expectation of OT:
-    $$\boldsymbol{q}_i = \mathbb{E}_{\boldsymbol{u}_1,\cdots,\boldsymbol{u}_N \sim \mathcal{D}} ~ [\boldsymbol{u}_{\sigma^*_{i}}],~\forall i\in[N] \textrm{.} $$
+    We construct \(\{\boldsymbol{u}^{(i)}\}_{i\in[N]}\) to be iid samples from the target distribution and compute the expectation of OT:
+    $$\boldsymbol{q}^{(i)} = \mathbb{E}_{\boldsymbol{u}^{(1)},\cdots,\boldsymbol{u}^{(N)} \sim \mathcal{D}} ~ [\boldsymbol{u}^{(\sigma^*_{i})}],~\forall i\in[N] \textrm{.} $$
 
-    \(\boldsymbol{q}_{i}\) is a probability vector where the \(k\)-th element is the probability that \(\boldsymbol{x}^{(i)}\) should have target class \(k\), had the batch of generated images indeed followed the target distribution \(\mathcal{D}\). The expectation of OT can be computed analytically when the number of classes \(K\) is small or approximated by empirical average when \(K\) increases. We note one can also construct a fixed set of \(\{\boldsymbol{u}_i\}_{i\in[N]}\), for example half male and half female to represent a balanced gender distribution. But this construction poses a stronger finite-sample alignment objective and neglects the sensitivity of OT. Finally, we generate target classes \(y_{1},\cdots,y_{N}\in [K]\) and confidence of these targets \(c_{1},\cdots,c_{N}\in [0,1]\) by: \(y_{i} = \arg\max(\boldsymbol{q}_{i}), c_{i} = \max(\boldsymbol{q}_{i})\textrm{,}\) \(\forall i\in[N]\). We define DAL as the cross-entropy loss w.r.t. these dynamically generated targets, with a confidence threshold \(C\),
-      $$ \mathcal{L}_{\textrm{align}} = \frac{1}{N}\sum_{i=1}^{N} \mathbb{1}[c_i\geq C] \mathcal{L}_{\textrm{CE}}(h(\boldsymbol{x}^{(i)}),y_i)\textrm{.} $$
+    \(\boldsymbol{q}^{(i)}\) is a probability vector where the \(k\)-th element is the probability that \(\boldsymbol{x}^{(i)}\) should have target class \(k\), had the batch of generated images indeed followed the target distribution \(\mathcal{D}\). The expectation of OT can be computed analytically when the number of classes \(K\) is small or approximated by empirical average when \(K\) increases. We note one can also construct a fixed set of \(\{\boldsymbol{u}^{(i)}\}_{i\in[N]}\), for example half male and half female to represent a balanced gender distribution. But this construction poses a stronger finite-sample alignment objective and neglects the sensitivity of OT.<br>
+    
+    Finally, we generate target classes \(y^{(1)},\cdots,y^{(N)}\in [K]\) and confidence of these targets \(c^{(1)},\cdots,c^{(N)}\in [0,1]\) by: \(y^{(i)} = \arg\max(\boldsymbol{q}^{(i)}), c^{(i)} = \max(\boldsymbol{q}^{(i)})\textrm{,}\) \(\forall i\in[N]\). We define DAL as the cross-entropy loss w.r.t. these dynamically generated targets, with a confidence threshold \(C\),
+      $$ \mathcal{L}_{\textrm{align}} = \frac{1}{N}\sum_{i=1}^{N} \mathbb{1}[c^{(i)}\geq C] \mathcal{L}_{\textrm{CE}}(h(\boldsymbol{x}^{(i)}),y^{(i)})\textrm{.} $$
 
-    <br>Besides the distributional alignment loss, we use other regularizations to preserves the image semantics. Read Section 4.1 in paper for details.
+    <br>Besides DAL, we additionally regularize CLIP and DINO similarities between images generated by the original and finetuned models to preserve image semantics.
   </div>
 </div>
 
@@ -277,7 +279,7 @@
   </h2>
   <button id="toggleButton_DFT" onclick="toggleVisibility_DFT()" class="toggle-button">Hide Content</button>
   <div id="toggleContent_DFT" style="display: block;">
-    While most diffusion finetuning methods use the same denoising diffusion loss from pre-training, Direct Finetuning (DFT) aims to directly finetune the diffusion model's sampling process to minimize any loss defined on the generated images, such as ours. We show the naive DFT, which computes the exact gradient of the sampling process has exploding norm and variances, and therefore is ineffective. Adjusted DFT leverages an adjusted gradient to overcome these issues. It opens venues for more refined and targeted diffusion model finetuning and can be applied for objectives beyond fairness. Read Section 4.2 in paper for details.
+    While most diffusion finetuning methods use the same denoising diffusion loss from pre-training, Direct Finetuning (DFT) aims to directly finetune the diffusion model's sampling process to minimize any loss defined on the generated images, such as ours. We show the naive DFT, which computes the exact gradient of the sampling process, has exploding norm and variances and therefore is ineffective. Adjusted DFT leverages an adjusted gradient to overcome these issues. It opens venues for more refined and targeted diffusion model finetuning and can be applied for objectives beyond fairness. Read Section 4.2 in paper for details.
   <hr>
     <table>
       <tr>
@@ -319,7 +321,7 @@
         <tr>
           <td>
             <p style="text-align:justify; text-justify:inter-ideograph;"> 
-              <b>The left figure plots the training loss during DFT, w/ three distinct gradients. Each reported w/ 3 random runs. The right figure estimates the scale of these gradients at different time steps. Mean and \(90\%\) CI are computed from 20 random runs.</b> Naive DFT uses the exact gradient, whose norm is illustrated by the \(|\boldsymbol{R}_tA_t\boldsymbol{B}_t\frac{\partial\boldsymbol{\epsilon}^{(t)}}{\partial\boldsymbol{\theta}}|\) entry in the right figure. The proposed adjusted DFT is denoted as ours entry.
+              <b>The left figure plots the training loss during DFT, w/ three distinct gradients. Each reported w/ 3 random runs. The right figure estimates the scale of these gradients at different time steps. Mean and \(90\%\) CI are computed from 20 random runs.</b> Naive DFT uses the exact gradient, whose norm is illustrated by the "\(|\boldsymbol{R}_tA_t\boldsymbol{B}_t\frac{\partial\boldsymbol{\epsilon}^{(t)}}{\partial\boldsymbol{\theta}}|\)" entry in the right figure. The proposed adjusted DFT is denoted as "ours" entry.
           </td>
         </tr>
       </center>
@@ -428,7 +430,7 @@
         <tr>
           <td>
             <p style="text-align:justify; text-justify:inter-ideograph;"> 
-              <b>Generated Images using templated prompts with unseen occupations using the original SD (left) and the debiased SD (right).</b> For every image, the first color-coded bar denotes the predicted gender: <span style="color: blue;">blue</span> for male and <span style="color: red;">red</span> for female. The second denotes race: <span style="color: green;">green</span> for WMELH, <span style="color: orange;">orange</span> for Asian, <span style="color: black;">black</span> for Black, and <span style="color: brown;">brown</span> for Indian. Bar height represents prediction confidence. Bounding boxes denote detected faces. For the same prompt, images with the same number label are generated using the same noise.
+              <b>Generated images using templated prompts with unseen occupations using the original SD (left) and the debiased SD (right).</b> For every image, the first color-coded bar denotes the predicted gender: <span style="color: blue;">blue</span> for male and <span style="color: red;">red</span> for female. The second denotes race: <span style="color: green;">green</span> for WMELH, <span style="color: orange;">orange</span> for Asian, <span style="color: black;">black</span> for Black, and <span style="color: brown;">brown</span> for Indian. Bar height represents prediction confidence. Bounding boxes denote detected faces. For the same prompt, images with the same number label are generated using the same noise.
           </td>
         </tr>
       </center>
@@ -604,14 +606,14 @@
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
-    <pre><code>@misc{shen2023finetuning,
+    <pre><code>@inproceedings{shen2023finetuning,
       title={Finetuning Text-to-Image Diffusion Models for Fairness}, 
       author={Xudong Shen and Chao Du and Tianyu Pang and Min Lin and Yongkang Wong and Mohan Kankanhalli},
-      year={2023},
-      eprint={2311.07604},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
-}</code></pre>
+      booktitle={The Twelfth International Conference on Learning Representations},
+      year={2024},
+      url={https://openreview.net/forum?id=hnrB5YHoYu}
+}
+</code></pre>
   </div>
 </section>
 
