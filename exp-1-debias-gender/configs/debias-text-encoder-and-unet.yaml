@@ -1,0 +1,14 @@
+proj_name: gender-debias-text-encoder-and-unet
+train_text_encoder: True
+train_unet: True
+weight_loss_img: 8
+weight_loss_face: 1
+factor1: 0.2
+factor2: 0.2
+uncertainty_threshold: 0.2
+train_images_per_prompt_GPU: 12
+train_GPU_batch_size: 3
+val_images_per_prompt_GPU: 16
+val_GPU_batch_size: 8
+learning_rate: 5e-5
+max_train_steps: 10000
