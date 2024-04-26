@@ -41,6 +41,7 @@ This repository includes the code and checkpoints necessary to replicate the fiv
 | [exp-3-debias-gender-race](exp-3-debias-gender-race) | Occupations | Finetune LoRA on text encoder and/or U-Net to jointly debias binary gender and four classes of race, to a perfectly balanced distribtion. |
 | [exp-4-debias-gender-race-age](exp-4-debias-gender-race-age) | Occupations | Finetune LoRA on text encoder and/or U-Net to jointly debias binary gender and four classes of race, to a perfectly balanced distribtion. Simultaneouly, control age to 75% yound and 25% old distribution. |
 | [exp-5-debias-gender-race-multi-concepts](exp-5-debias-gender-race-multi-concepts) | (1) Occupations, (2) occupations with style and context, (3) personal descriptors, and (4) sports  | Finetune LoRA on text encoder and/or U-Net to jointly debias binary gender and four classes of race, to a perfectly balanced distribtion. |
+| [exp-5-debias-race](exp-6-debias-race) | Occupations  | Finetune LoRA on text encoder and/or U-Net to debias four classes of race, to a perfectly balanced distribtion. |
 
 
 ## Fair diffusion model adaptors
@@ -54,6 +55,7 @@ If you're primarily interested in utilizing and evaluating our debiased Stable D
 | [exp-3-debias-gender-race](exp-3-debias-gender-race) | [link](https://drive.google.com/file/d/1aYCBNnIJlj3nrIYd8o-D4ob02JLVQnpk/view?usp=share_link) | unzip to `exp-3-debias-gender-race/outputs`, follow instructions starting from [this point onwards](exp-3-debias-gender-race/README.md#step-3). |
 | [exp-4-debias-gender-race-age](exp-4-debias-gender-race-age) | [link](https://drive.google.com/file/d/1KSd3BE67xq3LONH7rcBk6c0qEvQlRhDQ/view?usp=share_link) | unzip to `exp-4-debias-gender-race-age/outputs`, follow instructions starting from [this point onwards](exp-4-debias-gender-race-age/README.md#step-3). |
 | [exp-5-debias-gender-race-multi-concepts](exp-5-debias-gender-race-multi-concepts) | [link](https://drive.google.com/file/d/1oV5WBl8DKFEHrI4fzBJLekK1GPyNKRpF/view?usp=share_link) | unzip to `exp-5-debias-gender-race-multi-concepts/outputs`, follow instructions starting from [this point onwards](exp-5-debias-gender-race-multi-concepts/README.md#step-3). |
+| [exp-6-debias-race](exp-6-debias-race) | [link](https://drive.google.com/file/d/1u1zy3Q4dINYU17YK3ckB3lMyrKe_20LA/view?usp=share_link) | unzip to `exp-6-debias-race/outputs`, follow instructions starting from [this point onwards](exp-6-debias-race/README.md#step-3). |
 
 
 # Get in touch

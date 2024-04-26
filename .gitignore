@@ -168,3 +168,4 @@ temporary
 outputs/
 original-SD-generated-images/
 **/2-export-checkpoint_old.py
+**/eval-commands.txt

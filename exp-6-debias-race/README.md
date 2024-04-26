@@ -1,9 +1,9 @@
 # exp-1-debias-gender
-In this experiment, we can finetune (1) text encoder, (2) U-Net, or (3) text encoder + U-Net. We debias binary gender w.r.t. [occupational prompts](../data/1-prompts/occupation.json) using the template "A photo of the face of a {occupation}, a person". Our target distribution is a perfectly balanced gender distribution.
+In this experiment, we can finetune (1) text encoder, (2) U-Net, or (3) text encoder + U-Net. We debias four classes of race w.r.t. [occupational prompts](../data/1-prompts/occupation.json) using the template "A photo of the face of a {occupation}, a person". Our target distribution is a perfectly balanced race distribution.
 
 You need to complete all steps as outlined in the [prerequisite](../README.md#prerequisite). Change working directory to current experiment:
 ```
-cd exp-1-debias-gender
+cd exp-6-debias-race
 ```
 
 If you are only interested in testing the debiased diffusion models, directly start from step 3.
@@ -16,43 +16,41 @@ accelerate launch --config_file configs/accelerate_config.yaml 1-main-debias.py 
 - The `--config_file configs/accelerate_config.yaml` specifies the Hugging Face Accelerate configuration, while `--config configs/debias-text-encoder.yaml` defines the configuration for the experiment.
 - To finetune U-Net, use `--config configs/debias-unet.yaml`. To finetune both text encoder and U-Net, use `--config configs/debias-text-encoder-and-unet.yaml`.
 - The code uses distributed training and assumes 2 A100-SXM4-40GB GPUs.
-- If you have only one GPU, you can still run the code. However, you'll need to modify the `num_processes` parameter to `1` in the `configs/accelerate_config.yaml` file and set the `train_images_per_prompt_GPU` parameter to `24` in the `configs/debias-text-encoder.yaml` file. This adjustment is necessary because the actual batch size is determined by multiplying the number of GPUs by the train_images_per_prompt_GPU value.
-- If you have more than 2 GPUs, you can speed up finetuning. For instance, you can achieve this by adjusting the `num_processes` parameter to `4` in the `configs/accelerate_config.yaml` file and setting the `train_images_per_prompt_GPU` to `6` in the `configs/debias-text-encoder.yaml` file.
+- If you have only one GPU, you can still run the code. However, you'll need to modify the `num_processes` parameter to `1` in the `configs/accelerate_config.yaml` file and set the `train_images_per_prompt_GPU` parameter to `32` in the `configs/debias-text-encoder.yaml` file. This adjustment is necessary because the actual batch size is determined by multiplying the number of GPUs by the train_images_per_prompt_GPU value.
+- If you have more than 2 GPUs, you can speed up finetuning. For instance, you can achieve this by adjusting the `num_processes` parameter to `4` in the `configs/accelerate_config.yaml` file and setting the `train_images_per_prompt_GPU` to `8` in the `configs/debias-text-encoder.yaml` file.
 - If your GPU has less memory, try set `train_GPU_batch_size` to smaller numbers. You don't need to adjust `train_images_per_prompt_GPU`.
-- We set `max_train_steps` to `10000` in `configs/debias-text-encoder.yaml`. The complete finetuning process takes 2~3 days. However, you can terminate the code after `2000` iterations, as the debiasing effect is largely realized by this point. We checkpoint every `200` iterations.
+- We set `max_train_steps` to `12000` in `configs/debias-text-encoder.yaml`. The complete finetuning process takes 2~3 days. However, you can terminate the code after `4000` iterations, as the debiasing effect is largely realized by this point. We checkpoint every `200` iterations.
 
 During & after finetuning:
-- Logs and checkpoints will be saved to `outputs/`.
+- Logs and checkpoints will b `outputs/`.
 - You can monitor progress on wandb.
 
 Below, we present logs from several example runs:
 
 | Finetune | Logs |
 |-----------------|-----------------|
-| text encoder | <img src="../_github-images/exp-1-text-encoder/train_DAL.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-1-text-encoder/train_gender_gap.png" alt="train_gender_gap" width="180"> <img src="../_github-images/exp-1-text-encoder/val_gender_gap.png" alt="val_gender_gap" width="180"> |
-| U-Net | <img src="../_github-images/exp-1-unet/train_DAL.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-1-unet/train_gender_gap.png" alt="train_gender_gap" width="180"> <img src="../_github-images/exp-1-unet/val_gender_gap.png" alt="val_gender_gap" width="180"> |
-| text encoder and U-Net | <img src="../_github-images/exp-1-text-encoder-and-unet/train_DAL.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-1-text-encoder-and-unet/train_gender_gap.png" alt="train_gender_gap" width="180"> <img src="../_github-images/exp-1-text-encoder-and-unet/val_gender_gap.png" alt="val_gender_gap" width="180"> |
+| text encoder | <img src="../_github-images/exp-6-text-encoder/train_DAL_race.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-6-text-encoder/train_race_bias.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-6-text-encoder/train_freq_race_white.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-6-text-encoder/train_freq_race_black.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-6-text-encoder/train_freq_race_indian.png" alt="train_DAL" width="180">  <img src="../_github-images/exp-6-text-encoder/train_freq_race_asian.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-6-text-encoder/val_race_bias.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-6-text-encoder/val_freq_race_white.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-6-text-encoder/val_freq_race_black.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-6-text-encoder/val_freq_race_indian.png" alt="train_DAL" width="180"> <img src="../_github-images/exp-6-text-encoder/val_freq_race_asian.png" alt="train_DAL" width="180">  |
 
 
 
 ## Step 2
-Once you have obtained a satisfactory checkpoint (say at `outputs/gender-debias-text-encoder/BS-24_wImg-8-0.2-0.2_wFace-1_Th-0.2_loraR-50_lr-5e-05_03092357/ckpts/checkpoint-1400`), you will need to export it using the following command:
+Once you have obtained a satisfactory checkpoint (say at `/outputs/race-debias-text-encoder/BS-32_wImg-6-0.6-0.3_wFace-0.1_Th-0.2_loraR-50_lr-5e-05_04142046/ckpts/checkpoint_tmp-140`), you will need to export it using the following command:
 ```
-python 2-export-checkpoint.py --config configs/debias-text-encoder.yaml --resume_from_checkpoint ./outputs/gender-debias-text-encoder/BS-24_wImg-8-0.2-0.2_wFace-1_Th-0.2_loraR-50_lr-5e-05_03092357/ckpts/checkpoint-1400
+python 2-export-checkpoint.py --config configs/debias-text-encoder.yaml --resume_from_checkpoint /outputs/race-debias-text-encoder/BS-32_wImg-6-0.6-0.3_wFace-0.1_Th-0.2_loraR-50_lr-5e-05_04142046/ckpts/checkpoint_tmp-140
 ```
 - The `--resume_from_checkpoint` option should be set to the path of the checkpoint folder.
 - The `--config` option should be set to the experiment configuration file that was used to generate the checkpoint.
 
-After running the above command, you should see LoRA models inside a newly created folder `outputs/gender-debias-text-encoder/BS-24_wImg-8-0.2-0.2_wFace-1_Th-0.2_loraR-50_lr-5e-05_03092357/ckpts/checkpoint-1400_exported`.
+After running the above command, you should see LoRA models inside a newly created folder `/outputs/race-debias-text-encoder/BS-32_wImg-6-0.6-0.3_wFace-0.1_Th-0.2_loraR-50_lr-5e-05_04142046/ckpts/checkpoint_tmp-140_exported`.
 
 ## Step 3
-You can skip steps 1 and 2 and download our debiased diffusion models from [here](https://drive.google.com/file/d/1G6sl8Hv8ZX1poaqTHiBGDdz1Sqj1bs4u/view?usp=share_link). Once downloaded, please place the `exp-1-checkpoints.zip` file in the `outputs/` directory. Unzip the file using the command
+You can skip steps 1 and 2 and download our debiased diffusion models from [here](https://drive.google.com/file/d/1u1zy3Q4dINYU17YK3ckB3lMyrKe_20LA/view?usp=share_link). Once downloaded, please place the `exp-6-checkpoints.zip` file in the `outputs/` directory. Unzip the file using the command
 ```
 cd outputs
-unzip exp-1-checkpoints.zip
+unzip exp-6-checkpoints.zip
 cd ..
 ```
-Upon unzipping, you will find three folders in the `outputs/` folder: `from-paper_finetune-text-encoder_09190215`, `from-paper_finetune-text-encoder-and-unet_09201743`, and `from-paper_finetune-unet_09210552`.
+Upon unzipping, you will find one folder in the `outputs/` folder: `from-paper_finetune-text-encoder-09101712`.
 
 
 ## Step 4
@@ -65,19 +63,17 @@ cd ..
 Run the following command to generate images using the debiased models and the test prompts:
 ```
 python gen-images.py \
-    --load_text_encoder_lora_from ./exp-1-debias-gender/outputs/from-paper_finetune-text-encoder_09190215/checkpoint-9800_exported/text_encoder_lora_EMA.pth \
+    --load_text_encoder_lora_from ./exp-6-debias-race/outputs/from-paper_finetune-text-encoder-09101712/checkpoint-10600_exported/text_encoder_lora_EMA.pth \
     --prompts_path ./data/1-prompts/occupation.json \
-    --num_imgs_per_prompt 60 \
-    --save_dir ./exp-1-debias-gender/outputs/from-paper_finetune-text-encoder_09190215/checkpoint-9800-generated-images/test_prompts_occupation/ \
+    --num_imgs_per_prompt 80 \
+    --save_dir ./exp-6-debias-race/outputs/from-paper_finetune-text-encoder-09101712/checkpoint-10600-generated-images/test_prompts_occupation/ \
     --gpu_id 0 \
     --batch_size 10
 ```
-- Images are generated using the original stable diffusion v1-5, enhanced by our debiased text encoder LoRA EMA at `./exp-1-debias-gender/outputs/from-paper_finetune-text-encoder_09190215/checkpoint-9800_exported/text_encoder_lora_EMA.pth`.
-- To test the checkpoint that only finetunes U-Net, use `--load_unet_lora_from ./exp-1-debias-gender/outputs/from-paper_finetune-unet_09210552/checkpoint-6200_exported/unet_lora_EMA.pth` and unset `--load_text_encoder_lora_from`.
-- To test the checkpoint that finetunes both text encoder and U-Net, set `--load_text_encoder_lora_from ./exp-1-debias-gender/outputs/from-paper_finetune-text-encoder-and-unet_09201743/checkpoint-9000_exported/text_encoder_lora_EMA.pth` and `--load_unet_lora_from ./exp-1-debias-gender/outputs/from-paper_finetune-text-encoder-and-unet_09201743/checkpoint-9000_exported/unet_lora_EMA.pth`.
+- Images are generated using the original stable diffusion v1-5, enhanced by our debiased text encoder LoRA EMA at `./exp-6-debias-race/outputs/from-paper_finetune-text-encoder-09101712/checkpoint-10600_exported/text_encoder_lora_EMA.pth`.
 - The test prompts can be found in the `test_prompts` section inside the `--prompts_path ./data/1-prompts/occupation.json` file.
 - If you want to test other prompts, you can set `--prompts_path` as `./data/1-prompts/LAION-aesthetics-V2-occupation-related.json`, `./data/1-prompts/occupation_w_style_and_context.json`, `./data/1-prompts/personal_descriptor.json`, or `./data/1-prompts/sports.json`. Remeber to change the `--save_dir` accordingly to avoid mixing generated images from different test sets.
-- In our evaluation of gender bias (2 classes), we set `--num_imgs_per_prompt 60`, generating 60 images for every prompt. However, this parameter can be modified to different values as needed.
+- In our evaluation of racial bias (4 classes), we set `--num_imgs_per_prompt 80`, generating 80 images for every prompt. However, this parameter can be modified to different values as needed.
 
 The code above will save the generated images into the directory specified by the `--save_dir` argument, organized according to the following structure:
 ```
@@ -93,11 +89,11 @@ the directory specified by the `--save_dir` argument
 ```
 
 ## Step 6
-Finally, assume you want to evaluate the generated images in the folder `./exp-1-debias-gender/outputs/from-paper_finetune-text-encoder_09190215/checkpoint-9800-generated-images/test_prompts_occupation/`, run the following:
+Finally, assume you want to evaluate the generated images in the folder `./exp-6-debias-race/outputs/from-paper_finetune-text-encoder-09101712/checkpoint-10600-generated-images/test_prompts_occupation/`, run the following:
 ```
 python eval-generated-images.py \
-    --generated_imgs_dir ./exp-1-debias-gender/outputs/from-paper_finetune-text-encoder_09190215/checkpoint-9800-generated-images/test_prompts_occupation/ \
-    --save_dir ./exp-1-debias-gender/outputs/from-paper_finetune-text-encoder_09190215/checkpoint-9800-generated-images/test_prompts_occupation_results
+    --generated_imgs_dir ./exp-6-debias-race/outputs/from-paper_finetune-text-encoder-09101712/checkpoint-10600-generated-images/test_prompts_occupation/ \
+    --save_dir ./exp-6-debias-race/outputs/from-paper_finetune-text-encoder-09101712/checkpoint-10600-generated-images/test_prompts_occupation_results
 ```
 - The `--generated_imgs_dir` argument should correspond to the `--save_dir` specified in step 6. In other words, it should follow the structure outlined at the conclusion of step 6.
 

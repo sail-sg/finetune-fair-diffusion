@@ -64,7 +64,7 @@ Run the following command to generate images using the debiased models and the t
 python gen-images.py \
     --load_prefix_embedding_from ./exp-2-debias-gender-token/outputs/from-paper_finetune-prefix_09202102/checkpoint-9400_exported/prefix_embedding_EMA.pth \
     --prompts_path ./data/1-prompts/occupation.json \
-    --num_imgs_per_prompt 49 \
+    --num_imgs_per_prompt 60 \
     --save_dir ./exp-2-debias-gender-token/outputs/from-paper_finetune-prefix_09202102/checkpoint-9400-generated-images/test_prompts_occupation/ \
     --gpu_id 0 \
     --batch_size 10
@@ -72,6 +72,7 @@ python gen-images.py \
 - Images are generated using the original stable diffusion v1-5, enhanced by our debiased prompt prefix EMA at `./exp-2-debias-gender-token/outputs/from-paper_finetune-prefix_09202102/checkpoint-9400_exported/prefix_embedding_EMA.pth`.
 - The test prompts can be found in the `test_prompts` section inside the `--prompts_path ./data/1-prompts/occupation.json` file.
 - If you want to test other prompts, you can set `--prompts_path` as `./data/1-prompts/LAION-aesthetics-V2-occupation-related.json`, `./data/1-prompts/occupation_w_style_and_context.json`, `./data/1-prompts/personal_descriptor.json`, or `./data/1-prompts/sports.json`. Remeber to change the `--save_dir` accordingly to avoid mixing generated images from different test sets.
+- In our evaluation of gender bias (2 classes), we set `--num_imgs_per_prompt 60`, generating 60 images for every prompt. However, this parameter can be modified to different values as needed.
 
 The code above will save the generated images into the directory specified by the `--save_dir` argument, organized according to the following structure:
 ```
@@ -96,7 +97,7 @@ python eval-generated-images.py \
 - The `--generated_imgs_dir` argument should correspond to the `--save_dir` specified in step 6. In other words, it should follow the structure outlined at the conclusion of step 6.
 
 
-The above code first detects the faces in the generated images. It retrieves the face that occupies the largest area of there are multiple faces in the generated image. Then, it applies three classifiers:
+The above code first detects the faces in the generated images. It retrieves the face that occupies the largest area if there are multiple faces in the generated image. Then, it applies three classifiers:
 1. gender classifier to predict two classes of gender: class 0 is female and class 1 is male; 
 2. race classifier to predict four classes of race: class 0 is White, Middle Easterm, Latino Hispanic, class 1 is Black, class 2 is Indian, class 3 is Asian;
 3. age classifier to predict two classes of age: class 0 is young and class 1 is old.
