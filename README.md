@@ -41,7 +41,7 @@ This repository includes the code and checkpoints necessary to replicate the fiv
 | [exp-3-debias-gender-race](exp-3-debias-gender-race) | Occupations | Finetune LoRA on text encoder and/or U-Net to jointly debias binary gender and four classes of race, to a perfectly balanced distribtion. |
 | [exp-4-debias-gender-race-age](exp-4-debias-gender-race-age) | Occupations | Finetune LoRA on text encoder and/or U-Net to jointly debias binary gender and four classes of race, to a perfectly balanced distribtion. Simultaneouly, control age to 75% yound and 25% old distribution. |
 | [exp-5-debias-gender-race-multi-concepts](exp-5-debias-gender-race-multi-concepts) | (1) Occupations, (2) occupations with style and context, (3) personal descriptors, and (4) sports  | Finetune LoRA on text encoder and/or U-Net to jointly debias binary gender and four classes of race, to a perfectly balanced distribtion. |
-| [exp-5-debias-race](exp-6-debias-race) | Occupations  | Finetune LoRA on text encoder and/or U-Net to debias four classes of race, to a perfectly balanced distribtion. |
+| [exp-6-debias-race](exp-6-debias-race) | Occupations  | Finetune LoRA on text encoder and/or U-Net to debias four classes of race, to a perfectly balanced distribtion. |
 
 
 ## Fair diffusion model adaptors
@@ -64,7 +64,7 @@ We sincerely appreciate your interest in our work. Should you have any questions
 # Citation
 
 ```
-@inproceedings{shen2023finetuning,
+@inproceedings{shen2024finetuning,
       title={Finetuning Text-to-Image Diffusion Models for Fairness}, 
       author={Xudong Shen and Chao Du and Tianyu Pang and Min Lin and Yongkang Wong and Mohan Kankanhalli},
       booktitle={The Twelfth International Conference on Learning Representations},
